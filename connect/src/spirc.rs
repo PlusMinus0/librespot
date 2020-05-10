@@ -237,6 +237,19 @@ fn volume_to_mixer(volume: u16, linear_volume: bool) -> u16 {
     }
 }
 
+fn url_encode(inp: &str) -> String {
+    let mut encoded = String::new();
+
+    for c in inp.as_bytes().iter() {
+        match *c as char {
+            'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => encoded.push(*c as char),
+            c => encoded.push_str(format!("%{:02X}", c as u32).as_str()),
+        };
+    }
+
+    encoded
+}
+
 impl Spirc {
     pub fn new(
         config: ConnectConfig,
@@ -249,7 +262,8 @@ impl Spirc {
         let ident = session.device_id().to_owned();
 
         // Uri updated in response to issue #288
-        let uri = format!("hm://remote/user/{}/", session.username());
+        debug!("canonical_username: {}", url_encode(&session.username()));
+        let uri = format!("hm://remote/user/{}/", url_encode(&session.username()));
 
         let subscription = session.mercury().subscribe(&uri as &str);
         let subscription = subscription
