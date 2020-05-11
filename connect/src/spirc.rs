@@ -14,11 +14,13 @@ use crate::playback::mixer::Mixer;
 use crate::playback::player::{Player, PlayerEvent, PlayerEventChannel};
 use crate::protocol;
 use crate::protocol::spirc::{DeviceState, Frame, MessageType, PlayStatus, State, TrackRef};
+
 use librespot_core::config::ConnectConfig;
 use librespot_core::mercury::MercuryError;
 use librespot_core::session::Session;
 use librespot_core::spotify_id::{SpotifyAudioType, SpotifyId, SpotifyIdError};
 use librespot_core::util::SeqGenerator;
+use librespot_core::util::url_encode;
 use librespot_core::version;
 use librespot_core::volume::Volume;
 
@@ -235,19 +237,6 @@ fn volume_to_mixer(volume: u16, linear_volume: bool) -> u16 {
     } else {
         calc_logarithmic_volume(volume)
     }
-}
-
-fn url_encode(inp: &str) -> String {
-    let mut encoded = String::new();
-
-    for c in inp.as_bytes().iter() {
-        match *c as char {
-            'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => encoded.push(*c as char),
-            c => encoded.push_str(format!("%{:02X}", c as u32).as_str()),
-        };
-    }
-
-    encoded
 }
 
 impl Spirc {
